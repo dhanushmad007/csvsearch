@@ -1,13 +1,13 @@
 {
     "builds": [{
-        "src": "jloldata/wsgi.py",
+        "src": "search/wsgi.py",
         "use": "@vercel/python",
         "config": { "maxLambdaSize": "15mb", "runtime": "python3.9" }
     }],
     "routes": [
         {
             "src": "/(.*)",
-            "dest": "jloldat/wsgi.py"
+            "dest": "search/wsgi.py"
         }
     ]
 }
