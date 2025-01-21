@@ -176,20 +176,24 @@
     </div>
 
     <script>
-        // Function to show the popup after 10 seconds
+        // Show popup after 10 seconds only if not dismissed
         setTimeout(() => {
-            document.getElementById('popup').style.display = 'block';
-            document.getElementById('overlay').style.display = 'block';
+            if (!localStorage.getItem('popupDismissed')) {
+                document.getElementById('popup').style.display = 'block';
+                document.getElementById('overlay').style.display = 'block';
+            }
         }, 10000);
 
         // Function to close the popup
         function closePopup() {
             document.getElementById('popup').style.display = 'none';
             document.getElementById('overlay').style.display = 'none';
+            localStorage.setItem('popupDismissed', 'true');
         }
 
         // Redirect function
         function redirectToFollow() {
+            localStorage.setItem('popupDismissed', 'true');
             window.location.href = 'https://www.instagram.com/dhmprints/'; // Replace with your URL
         }
     </script>
