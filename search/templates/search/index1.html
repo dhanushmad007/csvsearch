@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Data Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .search-box, .dropdown {
+            margin: 10px;
+            padding: 8px;
+            font-size: 16px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        form {
+            margin: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .pagination {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .pagination a {
+            padding: 5px 10px;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            margin: 0 5px;
+        }
+        .pagination a:hover {
+            background-color: #ddd;
+        }
+        /* Pop-up styles */
+        #popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border: 1px solid #ddd;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: none;
+            text-align: center;
+            width: 300px;
+        }
+        #popup h2 {
+            margin-bottom: 10px;
+        }
+        #popup button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        #popup button:hover {
+            background-color: #0056b3;
+        }
+        #popup .close-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        #popup .close-btn:hover {
+            background-color: #d32f2f;
+        }
+        /* Overlay */
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>CSV Data Search</h1>
+
+    <!-- Search Form -->
+    <form method="get">
+        {{ search_form.as_p }}
+        <button type="submit" class="search-box">Search</button>
+    </form>
+
+    <!-- JL Date Dropdown -->
+    <form method="get">
+        <label for="jl_date">Select JL Date:</label>
+        <select name="jl_date" id="jl_date" class="dropdown">
+            <option value="">All</option>
+            {% for date in jl_dates %}
+                <option value="{{ date }}" {% if request.GET.jl_date == date %} selected {% endif %}>{{ date }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="search-box">Filter</button>
+    </form>
+
+    <!-- Data Table -->
+    <table>
+        <thead>
+            <tr>
+                <th>S.No</th>
+                <th>Username</th>
+                <th>User Login ID</th>
+                <th>Role</th>
+                <th>JL Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in data %}
+                <tr>
+                    <td>{{ row.SNo }}</td>
+                    <td>{{ row.usrname }}</td>
+                    <td>{{ row.usrloginid }}</td>
+                    <td>{{ row.role }}</td>
+                    <td>{{ row.JL_date }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5">No results found</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        {% if data.has_previous %}
+            <a href="?page=1&search={{ request.GET.search }}&jl_date={{ request.GET.jl_date }}">First</a>
+            <a href="?page={{ data.previous_page_number }}&search={{ request.GET.search }}&jl_date={{ request.GET.jl_date }}">Previous</a>
+        {% endif %}
+        <span>Page {{ data.number }} of {{ data.paginator.num_pages }}</span>
+        {% if data.has_next %}
+            <a href="?page={{ data.next_page_number }}&search={{ request.GET.search }}&jl_date={{ request.GET.jl_date }}">Next</a>
+            <a href="?page={{ data.paginator.num_pages }}&search={{ request.GET.search }}&jl_date={{ request.GET.jl_date }}">Last</a>
+        {% endif %}
+    </div>
+
+    <!-- Pop-up -->
+    <div id="overlay"></div>
+    <div id="popup">
+        <button class="close-btn" onclick="closePopup()">X</button>
+        <h2>Support My Small Business</h2>
+        <p>Please follow my small business for updates and offers!</p>
+        <button onclick="redirectToFollow()">Follow Now</button>
+    </div>
+
+    <script>
+        // Show popup after 10 seconds only if not dismissed
+        setTimeout(() => {
+            if (!localStorage.getItem('popupDismissed')) {
+                document.getElementById('popup').style.display = 'block';
+                document.getElementById('overlay').style.display = 'block';
+            }
+        }, 10000);
+
+        // Function to close the popup
+        function closePopup() {
+            document.getElementById('popup').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+            localStorage.setItem('popupDismissed', 'true');
+        }
+
+        // Redirect function
+        function redirectToFollow() {
+            localStorage.setItem('popupDismissed', 'true');
+            window.location.href = 'https://www.instagram.com/dhmprints/'; // Replace with your URL
+        }
+    </script>
+</body>
+</html>
