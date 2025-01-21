@@ -17,7 +17,7 @@ def index(request):
     filtered_data = df[df['usrname'].str.contains(search_query, case=False)] if search_query else df
     
     # Exclude records where 'usrname' contains '@tcsrh.com' or '@tcshub'
-    filtered_data = filtered_data[~filtered_data['usrloginid'].str.contains('@tcsrh.com|@tcshub', case=False, na=False)]
+    filtered_data = filtered_data[~filtered_data['usrloginid'].str.contains('@tcsrh.com|tcshub', case=False, na=False)]
     
     # Filter by JL_date if the dropdown selection exists
     if jl_date_filter:
